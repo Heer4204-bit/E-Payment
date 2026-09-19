@@ -9,7 +9,7 @@
     <style>
         :root {
             --bg-color: #060a12;
-            --panel-bg: rgba(11, 20, 38, 0.7);
+            --panel-bg: rgba(11, 20, 38, 0.75);
             --border-color: rgba(30, 60, 110, 0.5);
             --border-glow: rgba(0, 210, 255, 0.3);
             --text-primary: #e1f1ff;
@@ -34,7 +34,7 @@
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.25rem;
             background-image: 
                 radial-gradient(circle at 50% 0%, rgba(0, 114, 255, 0.15), transparent 70%),
                 radial-gradient(circle at 80% 80%, rgba(0, 240, 255, 0.05), transparent 50%);
@@ -59,7 +59,7 @@
         }
 
         .panel-title {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 1px;
             color: var(--text-primary);
@@ -84,6 +84,23 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+        }
+
+        .chip-icon-badge {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--accent-cyan);
+            padding: 0.5rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.6); }
         }
 
         .brand-title {
@@ -139,20 +156,43 @@
 
         nav {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
+            background: rgba(15, 28, 48, 0.6);
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
-        nav a {
+        nav button {
+            background: transparent;
+            border: none;
             color: var(--text-secondary);
-            text-decoration: none;
+            padding: 0.4rem 1rem;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 1px;
-            transition: color 0.3s;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
         }
 
-        nav a:hover, nav a.active {
-            color: var(--accent-cyan);
+        nav button:hover, nav button.active {
+            color: #fff;
+            background: rgba(0, 240, 255, 0.15);
+            border: 1px solid var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Views management */
+        .tab-view {
+            display: none;
+            width: 100%;
+        }
+
+        .tab-view.active {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
         }
 
         /* Grid Layout */
@@ -299,7 +339,7 @@
             border-color: var(--accent-blue);
         }
 
-        /* Middle Circuit Canvas */
+        /* Circuit Panel & Canvas */
         .circuit-panel {
             flex-grow: 1;
             display: flex;
@@ -307,7 +347,10 @@
             justify-content: space-between;
             position: relative;
             overflow: hidden;
-            background: radial-gradient(circle at center, rgba(11, 25, 48, 0.8) 0%, rgba(6, 10, 18, 0.9) 100%);
+            background: radial-gradient(circle at center, rgba(11, 25, 48, 0.8) 0%, rgba(6, 10, 18, 0.95) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
         }
 
         .circuit-canvas {
@@ -319,7 +362,6 @@
             justify-content: space-around;
         }
 
-        /* PCB Circuit Board Grid Effect */
         .circuit-canvas::before {
             content: '';
             position: absolute;
@@ -357,7 +399,7 @@
         .node-box.active {
             border-color: var(--accent-cyan);
             color: var(--accent-cyan);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
         }
 
         .node-label {
@@ -367,14 +409,14 @@
             transform: translateX(-50%);
             font-size: 0.65rem;
             color: var(--text-secondary);
-            white-spacing: nowrap;
+            white-space: nowrap;
             letter-spacing: 1px;
         }
 
-        /* Microchip visual */
+        /* Dynamic Chip Visual */
         .chip-container {
-            width: 120px;
-            height: 120px;
+            width: 130px;
+            height: 130px;
             background: #0d1520;
             border: 2px solid #2a4365;
             border-radius: 12px;
@@ -384,10 +426,15 @@
             justify-content: center;
             position: relative;
             z-index: 2;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+            transition: all 0.3s;
         }
 
-        /* Chip pins */
+        .chip-container.output-active {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+        }
+
         .chip-pins-left, .chip-pins-right {
             position: absolute;
             display: flex;
@@ -406,7 +453,7 @@
         }
 
         .chip-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: var(--accent-cyan);
             letter-spacing: 1px;
@@ -418,7 +465,7 @@
             margin-top: 2px;
         }
 
-        /* SVG Wiring */
+        /* SVG Wires & Flow Animation */
         .wires-svg {
             position: absolute;
             inset: 0;
@@ -430,16 +477,16 @@
 
         .wire {
             fill: none;
-            stroke: var(--border-color);
-            stroke-width: 2;
+            stroke: rgba(30, 60, 110, 0.6);
+            stroke-width: 3;
             stroke-dasharray: 6;
             transition: all 0.3s;
         }
 
         .wire.active {
             stroke: var(--accent-cyan);
-            animation: dash 1s linear infinite;
-            filter: drop-shadow(0 0 4px var(--accent-cyan));
+            animation: dash 0.8s linear infinite;
+            filter: drop-shadow(0 0 6px var(--accent-cyan));
         }
 
         @keyframes dash {
@@ -454,6 +501,19 @@
             color: var(--text-secondary);
             padding-top: 0.5rem;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Signal Flow Engine Screen Overlay */
+        .signal-engine-status {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
 
         /* Metrics & Telemetry Grid */
@@ -489,7 +549,7 @@
             color: var(--text-secondary);
         }
 
-        /* Console / Telemetry Log */
+        /* Telemetry Log */
         .telemetry-log {
             background: #030712;
             border: 1px solid var(--border-color);
@@ -504,14 +564,50 @@
             gap: 0.4rem;
         }
 
-        .log-entry {
-            color: var(--text-secondary);
-            line-height: 1.2;
-        }
-
+        .log-entry { color: var(--text-secondary); line-height: 1.2; }
         .log-entry.system { color: #4b6b94; }
         .log-entry.action { color: var(--accent-cyan); }
         .log-entry.output { color: var(--accent-green); }
+
+        /* Learn View Library */
+        .learn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .learn-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.25rem;
+        }
+
+        .learn-card h3 {
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .truth-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .truth-table th, .truth-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.4rem;
+            text-align: center;
+        }
+
+        .truth-table th {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--accent-cyan);
+        }
 
         /* Footer */
         footer {
@@ -540,11 +636,8 @@
             color: var(--text-secondary);
         }
 
-        /* Responsive Breakpoint */
         @media (max-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
+            .dashboard-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -553,7 +646,10 @@
     <!-- Header -->
     <header>
         <div class="brand-logo">
-            <i data-lucide="cpu" style="width: 32px; height: 32px; color: var(--accent-cyan);"></i>
+            <!-- QuantumCore Semiconductor Symbol -->
+            <div class="chip-icon-badge">
+                <i data-lucide="cpu" style="width: 28px; height: 28px; color: var(--accent-cyan);"></i>
+            </div>
             <div>
                 <h1 class="brand-title">QuantumCore</h1>
                 <p class="brand-subtitle">Semiconductor & Digital Logic Simulator</p>
@@ -569,93 +665,40 @@
                 </div>
             </div>
 
+            <!-- Working Navigation Options -->
             <nav>
-                <a href="#" class="active">BUILD</a>
-                <a href="#">SIMULATE</a>
-                <a href="#">LEARN</a>
+                <button id="navBuild" class="active" onclick="switchTab('build')">BUILD</button>
+                <button id="navSimulate" onclick="switchTab('simulate')">SIMULATE</button>
+                <button id="navLearn" onclick="switchTab('learn')">LEARN</button>
             </nav>
         </div>
     </header>
 
-    <!-- Main Content Dashboard -->
-    <div class="dashboard-grid">
-        
-        <!-- Left Column Controls -->
-        <div class="column">
-            <div class="panel">
-                <div class="panel-header">
-                    <i data-lucide="settings" class="metric-icon" style="width:16px; height:16px;"></i>
-                    <span class="panel-title">Digital Logic Gates</span>
-                </div>
-                <div class="panel-subtitle">Control input signals and select logic gate</div>
+    <!-- TAB 1: BUILD VIEW (MAIN DASHBOARD) -->
+    <div id="viewBuild" class="tab-view active">
+        <div class="dashboard-grid">
+            
+            <!-- Left Column Controls -->
+            <div class="column">
+                <div class="panel">
+                    <div class="panel-header">
+                        <i data-lucide="binary" class="metric-icon" style="width:16px; height:16px;"></i>
+                        <span class="panel-title">Digital Logic Gates</span>
+                    </div>
+                    <div class="panel-subtitle">Control input signals and select logic gate</div>
 
-                <div class="control-group">
-                    <div class="control-label-row">
-                        <div>
-                            <div class="control-label">Input A</div>
-                            <div class="control-desc">Primary Signal Source</div>
+                    <div class="control-group">
+                        <div class="control-label-row">
+                            <div>
+                                <div class="control-label">Input A</div>
+                                <div class="control-desc">Primary Signal Source</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="inputA" checked onchange="updateSimulation()">
+                                <span class="slider"></span>
+                            </label>
                         </div>
-                        <label class="switch">
-                            <input type="checkbox" id="inputA" checked onchange="updateSimulation()">
-                            <span class="slider"></span>
-                        </label>
                     </div>
-                </div>
 
-                <div class="control-group">
-                    <div class="control-label-row">
-                        <div>
-                            <div class="control-label">Input B</div>
-                            <div class="control-desc">Secondary Signal Source</div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="inputB" onchange="updateSimulation()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="control-group" style="margin-top: 1.5rem;">
-                    <div class="control-label" style="margin-bottom: 0.4rem;">GATE MODE</div>
-                    <select id="gateSelect" onchange="updateSimulation()">
-                        <option value="AND">AND</option>
-                        <option value="OR">OR</option>
-                        <option value="XOR">XOR</option>
-                        <option value="NAND">NAND</option>
-                        <option value="NOR">NOR</option>
-                    </select>
-                    <div id="gateDescription" class="gate-info">
-                        <strong>AND Gate</strong><br>
-                        Output is HIGH only when both inputs are HIGH.
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-header">
-                    <i data-lucide="sliders" class="metric-icon" style="width:16px; height:16px;"></i>
-                    <span class="panel-title">Interactive Controls</span>
-                </div>
-
-                <div class="control-group">
-                    <div class="control-label-row">
-                        <span class="control-desc">Simulation Clock Speed</span>
-                    </div>
-                    <input type="range" id="clockSpeed" min="0.1" max="5.0" step="0.1" value="2.4" oninput="updateClockDisplay(this.value)">
-                    <div id="clockDisplay" style="font-weight: 700; font-size: 0.9rem; margin-top: 0.2rem;">2.4 GHz</div>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="toggleRun()"><i data-lucide="play" style="width:12px;"></i> <span id="runBtnText">Run</span></button>
-                    <button class="btn" onclick="pauseSimulation()"><i data-lucide="pause" style="width:12px;"></i> Pause</button>
-                    <button class="btn" onclick="resetSimulation()"><i data-lucide="rotate-ccw" style="width:12px;"></i> Reset</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Middle Circuit Canvas Panel -->
-        <div class="panel circuit-panel">
-            <div class="panel-header">
-                <i data-lucide="zap" class="metric-icon" style="width:16px; height:16px;"></i>
-                <span class="panel-title">Live Signal Flow Engine</span>
-       
+                    <div class="control-group">
+    
