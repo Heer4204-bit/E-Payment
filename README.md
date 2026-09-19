@@ -1,1 +1,1 @@
-# Quantum-Core
+# Quantum Core
