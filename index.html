@@ -1,731 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuantumCore - Semiconductor & Digital Logic Simulator</title>
-  <style>
-    :root {
-      --bg-color: #060b13;
-      --panel-bg: rgba(11, 23, 42, 0.7);
-      --border-color: #1e2d42;
-      --cyan: #00f0ff;
-      --cyan-glow: rgba(0, 240, 255, 0.4);
-      --green: #00ff66;
-      --text-main: #e2e8f0;
-      --text-muted: #64748b;
-      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --mono-font: "Courier New", Courier, monospace;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      font-family: var(--font-family);
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background-image: 
-        radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.05) 0%, transparent 60%);
-    }
-
-    .dashboard-container {
-      width: 1000px;
-      max-width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    /* TOP HEADER */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 5px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo-icon {
-      width: 28px;
-      height: 28px;
-      border: 2px solid var(--cyan);
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2px;
-      padding: 2px;
-    }
-
-    .logo-icon div {
-      background: var(--cyan);
-    }
-
-    .brand-text h1 {
-      font-size: 24px;
-      color: #3b82f6;
-      display: inline-block;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .brand-text h1 span {
-      color: #a855f7;
-    }
-
-    .brand-text p {
-      font-size: 9px;
-      color: var(--text-muted);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .live-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0, 255, 102, 0.05);
-      border: 1px solid rgba(0, 255, 102, 0.2);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 10px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background-color: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--green);
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 15px;
-      font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 1px;
-    }
-
-    .nav-links span { cursor: pointer; }
-    .nav-links span:hover { color: var(--text-main); }
-
-    /* MAIN GRID */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 240px 1fr 260px;
-      gap: 15px;
-    }
-
-    /* CARD STYLING */
-    .card {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 15px;
-      position: relative;
-    }
-
-    .card-title {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 2px;
-    }
-
-    .card-subtitle {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    /* LEFT COLUMN */
-    .left-col {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .toggle-group {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .toggle-info label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .toggle-info span {
-      font-size: 10px;
-      color: var(--text-muted);
-    }
-
-    /* CUSTOM SWITCH */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 36px;
-      height: 20px;
-    }
-
-    .switch input { opacity: 0; width: 0; height: 0; }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #1e293b;
-      transition: .3s;
-      border-radius: 20px;
-      border: 1px solid var(--border-color);
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 14px;
-      width: 14px;
-      left: 2px;
-      bottom: 2px;
-      background-color: white;
-      transition: .3s;
-      border-radius: 50%;
-    }
-
-    input:checked + .slider {
-      background-color: var(--cyan);
-      box-shadow: 0 0 10px var(--cyan-glow);
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(16px);
-      background-color: #000;
-    }
-
-    select {
-      width: 100%;
-      background: #0f172a;
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      margin-top: 5px;
-      outline: none;
-    }
-
-    .gate-desc {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-top: 10px;
-      line-height: 1.3;
-    }
-
-    /* SLIDER & BUTTONS */
-    .slider-container {
-      margin-top: 10px;
-    }
-
-    .slider-val {
-      font-size: 12px;
-      font-weight: 600;
-      margin-top: 6px;
-    }
-
-    input[type=range] {
-      width: 100%;
-      accent-color: var(--cyan);
-      background: #1e293b;
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 5px;
-      margin-top: 12px;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 6px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      border-radius: 4px;
-      font-size: 10px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    .btn:hover {
-      border-color: var(--cyan);
-    }
-
-    /* CENTER COLUMN - CANVAS AREA */
-    .center-col {
-      background: var(--panel-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .circuit-bg {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none;
-      opacity: 0.3;
-    }
-
-    .visualizer {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      position: relative;
-      z-index: 1;
-      padding: 20px 0;
-    }
-
-    .input-nodes {
-      display: flex;
-      flex-direction: column;
-      gap: 50px;
-    }
-
-    .node-box {
-      text-align: center;
-    }
-
-    .node {
-      width: 44px;
-      height: 44px;
-      border-radius: 8px;
-      background: #0b172a;
-      border: 2px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: bold;
-      margin: 0 auto;
-    }
-
-    .node.active {
-      border-color: var(--cyan);
-      color: var(--cyan);
-      box-shadow: 0 0 12px var(--cyan-glow);
-    }
-
-    .node-label {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-top: 6px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    /* CHIP DISPLAY */
-    .chip {
-      width: 100px;
-      height: 100px;
-      background: #070e17;
-      border: 2px solid var(--cyan);
-      border-radius: 8px;
-      box-shadow: 0 0 15px var(--cyan-glow);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .chip-title {
-      color: var(--cyan);
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .chip-sub {
-      font-size: 7px;
-      color: var(--text-muted);
-      letter-spacing: 1px;
-      margin-top: 2px;
-    }
-
-    /* CHIP PINS */
-    .chip::before, .chip::after {
-      content: '';
-      position: absolute;
-      background: #334155;
-    }
-
-    .chip-pins-top-bottom {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0; left: 0;
-    }
-
-    .pin {
-      position: absolute;
-      background: #475569;
-    }
-
-    /* Footer Tags */
-    .center-footer {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      font-size: 10px;
-      color: var(--text-muted);
-      z-index: 1;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 10px;
-    }
-
-    /* RIGHT COLUMN */
-    .right-col {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .metric-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--border-color);
-      padding: 10px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .metric-icon {
-      font-size: 16px;
-      color: var(--cyan);
-    }
-
-    .metric-data div:first-child {
-      font-size: 9px;
-      color: var(--text-muted);
-    }
-
-    .metric-data div:last-child {
-      font-size: 13px;
-      font-weight: bold;
-      color: var(--text-main);
-    }
-
-    .telemetry-log {
-      font-family: var(--mono-font);
-      font-size: 9px;
-      color: #38bdf8;
-      background: rgba(3, 7, 18, 0.6);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      padding: 10px;
-      height: 140px;
-      overflow-y: auto;
-      line-height: 1.5;
-    }
-
-    .log-line {
-      margin-bottom: 4px;
-    }
-
-    /* BOTTOM FOOTER */
-    .bottom-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid var(--border-color);
-      padding-top: 12px;
-    }
-
-    .footer-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .footer-left h3 {
-      font-size: 10px;
-      color: var(--text-main);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .footer-left p {
-      font-size: 10px;
-      color: var(--text-muted);
-    }
-
-    .footer-right {
-      font-size: 10px;
-      font-style: italic;
-      color: var(--text-muted);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumCore - Semiconductor & Digital Logic Simulator</title>
+    <!-- Tailwind CSS for Layout -->
+    <script src="https://jsdelivr.net"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cloudflare.com">
+
+    <style>
+        :root {
+            --bg-dark: #060b19;
+            --panel-bg: rgba(10, 20, 42, 0.6);
+            --panel-border: rgba(30, 58, 138, 0.4);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.05) 0px, transparent 50%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .cyber-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .cyber-panel:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(6, 182, 212, 0.05);
+        }
+
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-space { font-family: 'Space Grotesk', sans-serif; }
+        .font-code { font-family: 'Fira Code', monospace; }
+
+        /* Custom Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155; transition: .3s; border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* Flow Lines Animation */
+        .flow-line {
+            stroke-dasharray: 8;
+            animation: dash 1s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -16; }
+        }
+
+        /* Scrollbar customization */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(30, 58, 138, 0.6); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+    </style>
 </head>
-<body>
+<body class="p-4 md:p-6 flex flex-col justify-between">
 
-  <div class="dashboard-container">
-    
     <!-- HEADER -->
-    <header>
-      <div class="brand">
-        <div class="logo-icon">
-          <div></div><div></div><div></div><div></div>
+    <header class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center border-b border-blue-900/30 pb-4 mb-6">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <div class="relative flex items-center justify-center w-10 h-10 border-2 border-cyan-500 rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                <i class="fa-solid fa-microchip text-cyan-400 text-xl animate-pulse"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold font-orbitron tracking-wider bg-gradient-to-r from-purple-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+                    QuantumCore
+                </h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-space">Semiconductor & Digital Logic Simulator</p>
+            </div>
         </div>
-        <div class="brand-text">
-          <h1>Quantum<span>Core</span></h1>
-          <p>Semiconductor & Digital Logic Simulator</p>
+
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-2 border border-emerald-500/30 bg-emerald-950/20 px-3 py-1.5 rounded-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span class="text-xs font-semibold text-emerald-400 tracking-wide font-space uppercase">Live Engine Active</span>
+                <span class="text-[10px] text-slate-400 border-l border-emerald-500/20 pl-2">All Systems Operational</span>
+            </div>
+            <nav class="hidden md:flex space-x-4 text-xs font-semibold uppercase tracking-wider text-slate-400 font-space">
+                <a href="#" class="hover:text-cyan-400 transition-colors">Build</a>
+                <a href="#" class="text-cyan-400 border-b-2 border-cyan-400 pb-1">Simulate</a>
+                <a href="#" class="hover:text-cyan-400 transition-colors">Learn</a>
+            </nav>
         </div>
-      </div>
-      <div class="header-right">
-        <div class="live-status">
-          <span class="status-dot"></span>
-          <div>
-            <strong>LIVE ENGINE ACTIVE</strong><br>
-            <span style="color: var(--text-muted); font-size: 8px;">All Systems Operational</span>
-          </div>
-        </div>
-        <div class="nav-links">
-          <span>BUILD</span>
-          <span>SIMULATE</span>
-          <span>LEARN</span>
-        </div>
-      </div>
     </header>
 
     <!-- MAIN DASHBOARD CONTENT -->
-    <div class="main-grid">
-      
-      <!-- LEFT PANEL -->
-      <div class="left-col">
+    <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch flex-grow">
         
-        <!-- LOGIC GATES CARD -->
-        <div class="card">
-          <div class="card-title">⚙️ DIGITAL LOGIC GATES</div>
-          <div class="card-subtitle">Control input signals and select logic gate</div>
+        <!-- LEFT COLUMN: CONTROLS -->
+        <div class="space-y-6 lg:col-span-1 flex flex-col justify-between">
+            <!-- Digital Logic Gates Panel -->
+            <div class="cyber-panel p-5 flex-grow">
+                <div class="flex items-center space-x-2 text-cyan-400 mb-4 border-b border-blue-900/30 pb-2">
+                    <i class="fa-solid fa-gear text-sm"></i>
+                    <h2 class="text-xs uppercase font-bold tracking-wider font-space">Digital Logic Gates</h2>
+                </div>
+                <p class="text-[11px] text-slate-400 mb-5">Control input signals and select logic gate</p>
 
-          <div class="toggle-group">
-            <div class="toggle-info">
-              <label>Input A</label>
-              <span>Primary Signal Source</span>
+                <!-- Input A -->
+                <div class="flex justify-between items-center mb-4 bg-slate-900/40 p-3 rounded-lg border border-slate-800/50">
+                    <div>
+                        <span class="block font-semibold text-sm">Input A</span>
+                        <span class="text-[10px] text-slate-400">Primary Signal Source</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="inputA" checked onchange="updateSimulation()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Input B -->
+                <div class="flex justify-between items-center mb-5 bg-slate-900/40 p-3 rounded-lg border border-slate-800/50">
+                    <div>
+                        <span class="block font-semibold text-sm">Input B</span>
+                        <span class="text-[10px] text-slate-400">Secondary Signal Source</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="inputB" onchange="updateSimulation()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- Gate Mode Dropdown -->
+                <div class="mb-5">
+                    <label class="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-network-wired text-[10px]"></i> Gate Mode
+                    </label>
+                    <select id="gateMode" onchange="updateSimulation()" class="w-full bg-slate-900 border border-blue-900/50 rounded-lg p-2.5 text-sm text-cyan-400 font-bold focus:outline-none focus:border-cyan-500">
+                        <option value="AND">AND</option>
+                        <option value="OR">OR</option>
+                        <option value="XOR">XOR</option>
+                        <option value="NAND">NAND</option>
+                        <option value="NOR">NOR</option>
+                    </select>
+                </div>
+
+                <!-- Gate Description Box -->
+                <div class="bg-blue-950/20 border border-blue-900/40 rounded-lg p-3">
+                    <span class="block text-xs font-bold text-cyan-400 mb-1" id="gateTitle">AND Gate</span>
+                    <p class="text-[11px] text-slate-400 leading-relaxed" id="gateDesc">Output is HIGH only when both inputs are HIGH.</p>
+                </div>
             </div>
-            <label class="switch">
-              <input type="checkbox" checked>
-              <span class="slider"></span>
-            </label>
-          </div>
 
-          <div class="toggle-group">
-            <div class="toggle-info">
-              <label>Input B</label>
-              <span>Secondary Signal Source</span>
-            </div>
-            <label class="switch">
-              <input type="checkbox">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div style="margin-top: 15px;">
-            <div class="card-title">🔒 GATE MODE</div>
-            <select>
-              <option selected>AND</option>
-              <option>OR</option>
-              <option>XOR</option>
-              <option>NAND</option>
-              <option>NOR</option>
-            </select>
-            <div class="gate-desc">
-              <strong>AND Gate</strong><br>
-              Output is HIGH only when both inputs are HIGH.
-            </div>
-          </div>
-        </div>
-
-        <!-- CONTROLS CARD -->
-        <div class="card">
-          <div class="card-title">🎛️ INTERACTIVE CONTROLS</div>
-          <div class="card-subtitle">Simulation Clock Speed</div>
-          
-          <div class="slider-container">
-            <input type="range" min="0.1" max="5.0" step="0.1" value="2.4">
-            <div class="slider-val">2.4 GHz</div>
-          </div>
-
-          <div class="btn-group">
-            <button class="btn">▶ Run</button>
-            <button class="btn">⏸ Pause</button>
-            <button class="btn">🔄 Reset</button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- CENTER PANEL (Interactive Visualizer) -->
-      <div class="center-col">
-        <div class="card-title">⚡ LIVE SIGNAL FLOW ENGINE</div>
-        <div class="card-subtitle">Visualize how digital signals flow through the semiconductor chip</div>
-
-        <!-- SVG Circuit Wires Background -->
-        <svg class="circuit-bg" viewBox="0 0 400 200">
-          <path d="M 80 60 L 150 60 L 170 85 L 190 85" fill="none" stroke="#00f0ff" stroke-width="2" stroke-dasharray="4" />
-          <path d="M 80 140 L 150 140 L 170 115 L 190 115" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="4" />
-          <path d="M 250 100 L 320 100" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="4" />
-        </svg>
-
-        <div class="visualizer">
-          <!-- Inputs -->
-          <div class="input-nodes">
-            <div class="node-box">
-              <div class="node active">1</div>
-              <div class="node-label">INPUT A</div>
-            </div>
-            <div class="node-box">
-              <div class="node">0</div>
-              <div class="node-label">INPUT B</div>
-            </div>
-          </div>
-
-          <!-- Central Microchip -->
-          <div class="chip">
-            <div class="chip-title">AND</div>
-            <div class="chip-sub">LOGIC CORE</div>
-          </div>
-
-          <!-- Output -->
-          <div class="node-box">
-            <div class="node">0</div>
-            <div class="node-label">OUTPUT Q</div>
-          </div>
-        </div>
-
-        <div class="center-footer">
-          <span>Semiconductor Chip</span> | 
-          <span>Digital Logic in Action</span> | 
-          <span>Real-time Signal Processing</span>
-        </div>
-      </div>
-
-      <!-- RIGHT PANEL -->
-      <div class="right-col">
-        
-        <!-- CPU SIMULATION METRICS -->
-        <div class="card">
-          <div class="card-title">🔳 CPU CORE SIMULATION</div>
-          <div class="card-subtitle">Real-time metrics from the virtual processor</div>
-
-          <div class="metrics-grid">
-            <div class="metric-card">
-              <div class="metric-icon">🌡️</div>
-              <div class="metric-data">
-                <div>Core Temp</div>
-                <div>34°C</div>
-              </div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-icon">⚡</div>
-              <div class="metric-data">
-                <div>VCC Voltage</div>
-                <div>1.22 V</div>
-              </div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-icon">🔲</div>
-              <div class="metric-data">
-                <div>Transistors</div>
-                <div style="color: var(--green);">Active</div>
-              </div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-icon">🎯</div>
-              <div class="metric-data">
-                <div>Core Load</div>
-                <div>8%</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TELEMETRY LOGS -->
-        <div class="card" style="flex: 1;">
-          <div class="card-title">>_ LIVE KERNEL TELEMETRY</div>
-          <div class="card-subtitle">Real-time simulation logs</div>
-
-          <div class="telemetry-log">
-            <div class="log-line">> QuantumCore Kernel initialized.</div>
-            <div class="log-line">> Awaiting schematic signal toggle...</div>
-            <div class="log-line">> Signal Matrix modified. A=1, B=0 -> Output=0 via AND</div>
-            <div class="log-line">> System clock cycle regulated to 2.4 GHz</div>
-            <div class="log-line">> Signal Matrix modified. A=0, B=0 -> Output=0 via AND</div>
-            <div class="log-line">> Signal Matrix modified. A=1, B=1 -> Output=1 via AND</div>
-            <div class="log-line">> Signal Matrix modified. A=0, B=1 -> Output=0 via AND</div>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- FOOTER -->
-    <div class="bottom-footer">
-      <div class="footer-left">
-        <span style="font-size: 16px;">💡</span>
-        <div>
-          <h3>About QuantumCore</h3>
-          <p>An interactive web-based simulator to visualize semiconductor chip working and digital logic operations. Built with HTML, CSS and JavaScript.</p>
-        </div>
-      </div>
-      <div class="footer-right">
-        "From Logic Gates to Limitless Innovations"
-      </div>
-    </div>
-
+            <!-- Interactive Controls Panel -->
+            <div class="cyber-panel p-5 mt-6">
+                <div class="flex items-center space-x-2 text-cyan-400 mb-4 border-b border-blue-900/30 pb-2">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                    <h2 class="text-xs uppercase font-bold tracking-wider font-space">Interactive Controls</h2>
+                </div>
+                
+                <div class="mb-5">
+                    <div class="flex justify-between items-center text-xs mb-1">
+                        <span class="text-slate-400">Simulation Clock Speed</span>
+                        <span class="text-cyan-400 font-bold font-orbitron" id="clockSpeedVal">2.4 GHz</span>
   </div>
-
-</body>
-</html>
+  
