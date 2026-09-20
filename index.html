@@ -1,1 +1,143 @@
+#include <ESP8266WiFi.h>
 
+// 🔧 WiFi credentials
+const char* ssid = "YOUR_SSID";
+const char* password = "YOUR_PASSWORD";
+
+// 🌐 Web server runs on port 80
+WiFiServer server(80);
+
+// 💡 Onboard LED pin
+const int ledPin = 2;
+bool ledState = false;
+
+void setup() {
+  Serial.begin(115200);
+  delay(10);
+
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, HIGH); // LED off initially
+
+  Serial.println();
+  Serial.printf("Connecting to %s", ssid);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("\n✅ WiFi connected!");
+  Serial.print("🌐 IP address: ");
+  Serial.println(WiFi.localIP());
+
+  server.begin();
+  Serial.println("🚀 Web server started");
+}
+
+void loop() {
+  WiFiClient client = server.available();
+  if (!client) return;
+
+  Serial.println("💻 New Client Connected");
+  String request = client.readStringUntil('\r');
+  Serial.println(request);
+  client.flush();
+
+  if (request.indexOf("/toggle") != -1) {
+    ledState = !ledState;
+    digitalWrite(ledPin, ledState ? LOW : HIGH);
+  }
+
+  String stateText = ledState ? "ON" : "OFF";
+  String stateColor = ledState ? "#00e676" : "#ff5252";
+
+  // 🌈 Beautiful HTML + CSS + JS
+  String html = R"rawliteral(
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP8266 LED Control</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      font-size: 2.4em;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px 50px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+    .status {
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+    .circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    button {
+      font-size: 18px;
+      padding: 15px 40px;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      background: linear-gradient(45deg, #43cea2, #185a9d);
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,255,255,0.3);
+    }
+    footer {
+      position: absolute;
+      bottom: 10px;
+      font-size: 14px;
+      opacity: 0.7;
+    }
+  </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>💡 ESP8266 LED Control</h1>
+      <div class="status">
+        LED is <b id="ledState">STATE_TEXT</b>
+        <span class="circle" id="ledCircle" style="background-color:STATE_COLOR;"></span>
+      </div>
+      <a href="/toggle"><button>Toggle LED</button></a>
+    </div>
+    <footer>ESP8266 Web Server • Designed by Anurag ⚡</footer>
+  </body>
+  </html>
+  )rawliteral";
+
+  html.replace("STATE_TEXT", stateText);
+  html.replace("STATE_COLOR", stateColor);
+
+  client.print("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n");
+  client.print(html);
+  delay(1);
+  Serial.println("👋 Client disconnected\n");
+}
