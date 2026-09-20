@@ -1,1 +1,1 @@
-# Quantum Core
+# E-Commerce Checkout & Payment UI Clone
