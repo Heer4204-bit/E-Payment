@@ -1,1 +1,1 @@
-# E-Commerce Checkout & Payment UI Clone
+# SnapPay AI - Intelligent Payment Security Assistant
